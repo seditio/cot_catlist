@@ -25,7 +25,7 @@ require_once cot_incfile('page', 'module');
 * @param  integer $cache_ttl		07. Cache TTL
 * @return string              Parsed HTML
 */
-function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $offset = 0, $pagination = '', $ajax_block = '', $cache_name = '', $cache_ttl = '') {
+function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $offset = 0, $pagination = '', $ajax_block = '', $cache_name = '', $cache_ttl = '') {
 
 	$enableAjax = $enableCache = $enablePagination = false;
 
@@ -40,17 +40,20 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 	else {
 
 		/* === Hook === */
-		foreach (cot_getextplugins('catlist.first') as $pl) {
+		foreach (cot_getextplugins('catlist.first') as $pl)
+		{
 			include $pl;
 		}
 		/* ===== */
 
 		// Condition shortcuts
-		if ((Cot::$cfg['turnajax']) && (Cot::$cfg['plugin']['catlist']['ajax']) && !empty($ajax_block))
+		if ((Cot::$cfg['turnajax']) && (Cot::$cfg['plugin']['catlist']['ajax']) && !empty($ajax_block)) {
 			$enableAjax = true;
+		}
 
-		if (!empty($pagination) && ((int)$items > 0))
+		if (!empty($pagination) && ((int)$items > 0)) {
 			$enablePagination = true;
+		}
 
 		// DB tables shortcuts
 		$db_structure = Cot::$db->structure;
@@ -60,10 +63,12 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		$t = new XTemplate(cot_tplfile($tpl, 'plug'));
 
 		// Get pagination if necessary
-		if ($enablePagination)
-			list($pg, $d, $durl) = cot_import_pagenav($pagination, $items);
-		else
-			$d = 0;
+    if ($enablePagination) {
+      list($pg, $d, $durl) = cot_import_pagenav($pagination, $items);
+    }
+    else {
+      $d = 0;
+    }
 
 		// Compile items number
     ((int)$offset <= 0) && $offset = 0;
@@ -73,10 +78,11 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		$sql_order = empty($order) ? "" : " ORDER BY $order";
 
 		// Compile all conditions
-		$sql_cond		= empty($extra) ? "" : " WHERE $extra";
+		$sql_cond = empty($extra) ? "" : " WHERE $extra";
 
 		/* === Hook === */
-		foreach (array_merge(cot_getextplugins('pagelist.query')) as $pl) {
+		foreach (array_merge(cot_getextplugins('pagelist.query')) as $pl)
+		{
 			include $pl;
 		}
 		/* ===== */
@@ -133,14 +139,8 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		if ($enablePagination) {
 			$totalitems = Cot::$db->query("SELECT s.* FROM $db_structure AS s $sql_cond")->rowCount();
 
-			if (defined('COT_ADMIN'))
-        $url_area = 'admin';
-      elseif (defined('COT_PLUG'))
-        $url_area = 'plug';
-      else
-        $url_area = Cot::$env['ext'];
-
-			$url_params = cot_geturlparams();
+			$url_area = sedby_geturlarea();
+			$url_params = sedby_geturlparams();
 			$url_params[$pagination] = $durl;
 
 			if ($enableAjax) {
@@ -148,14 +148,13 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 				$ajax_plug = 'plug';
 				if (Cot::$cfg['plugin']['catlist']['encrypt_ajax_urls']) {
 					$h = $tpl.','.$items.','.$order.','.$extra.','.$offset.','.$pagination.','.$ajax_block.','.$cache_name.','.$cache_ttl;
-					$h = cot_encrypt_decrypt('encrypt', $h, Cot::$cfg['plugin']['catlist']['encrypt_key'], Cot::$cfg['plugin']['catlist']['encrypt_iv']);
+					$h = sedby_encrypt_decrypt('encrypt', $h, Cot::$cfg['plugin']['catlist']['encrypt_key'], Cot::$cfg['plugin']['catlist']['encrypt_iv']);
 					$h = str_replace('=', '', $h);
 					$ajax_plug_params = "r=catlist&h=$h";
-				}
-				else
+				} else {
 					$ajax_plug_params = "r=catlist&tpl=$tpl&items=$items&order=$order&extra=$extra&offset=$offset&pagination=$pagination&ajax_block=$ajax_block&cache_name=$cache_name&cache_ttl=$cache_ttl";
-			}
-			else {
+				}
+			} else {
 				$ajax_mode = false;
 				$ajax_plug = $ajax_plug_params = '';
 			}
@@ -187,7 +186,8 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		($jj==1) && $t->parse("MAIN.NONE");
 
 		/* === Hook === */
-		foreach (cot_getextplugins('catlist.tags') as $pl) {
+		foreach (cot_getextplugins('catlist.tags') as $pl)
+		{
 			include $pl;
 		}
 		/* ===== */
@@ -195,8 +195,9 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		$t->parse();
 		$output = $t->text();
 
-		if (Cot::$cache && !empty($cache_name) && !empty($cache_ttl) && ($cache_ttl > 0))
-		Cot::$cache->db->store($cache_name, $output, SEDBY_CATLIST_REALM, $cache_ttl);
+		if (Cot::$cache && !empty($cache_name) && !empty($cache_ttl) && ($cache_ttl > 0)) {
+			Cot::$cache->db->store($cache_name, $output, SEDBY_CATLIST_REALM, $cache_ttl);
+		}
 	}
 
 	return $output;
@@ -205,25 +206,25 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 /**
 * Counts structure categories & caches result
 */
-function cot_catcount($condition = '', $lang = '', $cache_name = '', $cache_ttl = '') {
+function sedby_catcount($condition = '', $lang = '', $cache_name = '', $cache_ttl = '') {
 
 	$cache_name = (!empty($cache_name)) ? str_replace(' ', '_', $cache_name) : '';
 
-	if (Cot::$cache && !empty($cache_name) && Cot::$cache->db->exists($cache_name, SEDBY_CATLIST_REALM))
+	if (Cot::$cache && !empty($cache_name) && Cot::$cache->db->exists($cache_name, SEDBY_CATLIST_REALM)) {
 		$output = Cot::$cache->db->get($cache_name, SEDBY_CATLIST_REALM);
-	else {
-
+	} else {
 		global $Ls;
 		$db_structure = Cot::$db->structure;
 
-		$sql_cond	= empty($extra) ? "" : "WHERE $extra";
-		$query = "SELECT COUNT(*) FROM $db_structure $where_condition";
+		$sql_cond	= empty($condition) ? "" : "WHERE $condition";
+		$query = "SELECT COUNT(*) FROM $db_structure $sql_cond";
 		$output = Cot::$db->query($query)->fetchColumn();
 
 		$output = (empty($lang)) ? $output : cot_declension($output, $Ls[$lang]);
 
-		if (Cot::$cache && !empty($cache_name) && !empty($cache_ttl) && ($cache_ttl > 0))
-		Cot::$cache->db->store($cache_name, $output, SEDBY_CATLIST_REALM, $cache_ttl);
+		if (Cot::$cache && !empty($cache_name) && !empty($cache_ttl) && ($cache_ttl > 0)) {
+			Cot::$cache->db->store($cache_name, $output, SEDBY_CATLIST_REALM, $cache_ttl);
+		}
 	}
 	return ($output);
 }
