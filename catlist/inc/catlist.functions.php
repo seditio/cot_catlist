@@ -52,12 +52,7 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		if (!empty($pagination) && ((int)$items > 0))
 			$enablePagination = true;
 
-		if ($enableAjax && Cot::$cfg['plugin']['catlist']['encrypt_ajax_urls']) {
-			$h = $tpl.','.$items.','.$order.','.$extra.','.$offset.','.$pagination.','.$ajax_block.','.$cache_name.','.$cache_ttl;
-			$h = cot_encrypt_decrypt('encrypt', $h, Cot::$cfg['plugin']['catlist']['encrypt_key'], Cot::$cfg['plugin']['catlist']['encrypt_iv']);
-			$h = str_replace('=', '', $h);
-		}
-
+		// DB tables shortcuts
 		$db_structure = Cot::$db->structure;
 
 		// Display the items
@@ -90,6 +85,10 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		$res = Cot::$db->query($query);
 		$jj = 1;
 
+		/* === Hook - Part 1 === */
+		$extp = cot_getextplugins('catlist.loop');
+		/* ===== */
+
 		while ($row = $res->fetch()) {
 			$t->assign(array(
 				'PAGE_ROW_NUM'			=> $jj,
@@ -120,8 +119,8 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 				}
 			}
 
-			/* === Hook === */
-			foreach (cot_getextplugins('catlist.loop') as $pl) {
+			/* === Hook - Part 2 === */
+			foreach ($extp as $pl) {
 				include $pl;
 			}
 			/* ===== */
@@ -134,33 +133,25 @@ function cot_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $of
 		if ($enablePagination) {
 			$totalitems = Cot::$db->query("SELECT s.* FROM $db_structure AS s $sql_cond")->rowCount();
 
-      $url_area = defined('COT_PLUG') ? 'plug' : Cot::$env['ext'];
-			if (defined('COT_LIST')) {
-				global $list_url_path;
-				$url_params = $list_url_path;
-			}
-			elseif (defined('COT_PAGES')) {
-				global $al, $id, $pag;
-				$url_params = empty($al) ? array('c' => $pag['page_cat'], 'id' => $id) :  array('c' => $pag['page_cat'], 'al' => $al);
-			}
-			elseif(defined('COT_USERS')) {
-				global $m;
-				$url_params = empty($m) ? array() :  array('m' => $m);
-			}
-			elseif (defined('COT_ADMIN')) {
-				$url_area = 'admin';
-				global $m, $p, $a;
-				$url_params = array('m' => $m, 'p' => $p, 'a' => $a);
-			}
-			else
-				$url_params = array();
+			if (defined('COT_ADMIN'))
+        $url_area = 'admin';
+      elseif (defined('COT_PLUG'))
+        $url_area = 'plug';
+      else
+        $url_area = Cot::$env['ext'];
+
+			$url_params = cot_geturlparams();
 			$url_params[$pagination] = $durl;
 
 			if ($enableAjax) {
 				$ajax_mode = true;
 				$ajax_plug = 'plug';
-				if (Cot::$cfg['plugin']['catlist']['encrypt_ajax_urls'])
+				if (Cot::$cfg['plugin']['catlist']['encrypt_ajax_urls']) {
+					$h = $tpl.','.$items.','.$order.','.$extra.','.$offset.','.$pagination.','.$ajax_block.','.$cache_name.','.$cache_ttl;
+					$h = cot_encrypt_decrypt('encrypt', $h, Cot::$cfg['plugin']['catlist']['encrypt_key'], Cot::$cfg['plugin']['catlist']['encrypt_iv']);
+					$h = str_replace('=', '', $h);
 					$ajax_plug_params = "r=catlist&h=$h";
+				}
 				else
 					$ajax_plug_params = "r=catlist&tpl=$tpl&items=$items&order=$order&extra=$extra&offset=$offset&pagination=$pagination&ajax_block=$ajax_block&cache_name=$cache_name&cache_ttl=$cache_ttl";
 			}
