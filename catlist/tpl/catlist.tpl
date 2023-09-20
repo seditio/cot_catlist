@@ -1,11 +1,25 @@
 <!-- BEGIN: MAIN -->
-<ul class="list-unstyled">
+<table class="table table-striped mb-3">
+	<tbody>
 <!-- BEGIN: PAGE_ROW -->
-	<li class="{PAGE_ROW_ODDEVEN}">
-		<a href="{PAGE_ROW_CODE|cot_url('page', 'c=$this')}">{PAGE_ROW_TITLE}</a>
-	</li>
+		<tr class="{PAGE_ROW_ODDEVEN}">
+			<td>
+				<!-- IF {PAGE_ROW_HAS_DOT} -->
+				<a href="{PAGE_ROW_CODE|cot_url('page', 'c=$this')}" class="ms-2">&#x2022;<span class="ms-2">{PAGE_ROW_TITLE}</span></a>
+				<!-- ELSE -->
+				<a href="{PAGE_ROW_CODE|cot_url('page', 'c=$this')}" class="fw-bold">{PAGE_ROW_TITLE}</a>
+				<!-- ENDIF -->
+			</td>
+			<td class="d-none d-sm-table-cell">
+				{PAGE_ROW_AREA}
+			</td>
+			<td class="text-end">
+				{PAGE_ROW_COUNT|cot_declension($this, 'Records')}
+			</td>
+		</tr>
 <!-- END: PAGE_ROW -->
-</ul>
+	</tbody>
+</table>
 
 <!-- IF {PAGE_TOP_PAGINATION} -->
 <nav aria-label="Catlist Pagination">

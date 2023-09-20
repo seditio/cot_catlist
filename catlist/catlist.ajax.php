@@ -30,11 +30,11 @@ if (Cot::$cfg['plugin']['catlist']['encrypt_ajax_urls'] == 1) {
   $items = $params[1];
   $order = $params[2];
   $extra = $params[3];
-  $group = $params[4];
-  $offset = $params[5];
-  $pagination = $params[6];
-  $ajax_block = $params[7];
-  $cache_name = $params[8];
+  $offset = $params[4];
+  $pagination = $params[5];
+  $ajax_block = $params[6];
+  $cache_name = $params[7];
+  $cache_ttl = $params[8];
 }
 else {
   $tpl = cot_import('tpl','G','TXT');

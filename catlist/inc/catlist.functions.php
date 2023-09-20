@@ -30,7 +30,7 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 	$enableAjax = $enableCache = $enablePagination = false;
 
   // Condition shortcut
-  if (Cot::$cache && !empty($cache_name) && ((int)$cache_ttl > 0)) {
+  if (Cot::$cache && !empty($cache_name) && ((int)$cache_ttl > 0) && (Cot::$usr['id'] == 0)) {
     $enableCache = true;
     $cache_name = str_replace(' ', '_', $cache_name);
   }
@@ -40,8 +40,7 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 	else {
 
 		/* === Hook === */
-		foreach (cot_getextplugins('catlist.first') as $pl)
-		{
+		foreach (cot_getextplugins('catlist.first') as $pl) {
 			include $pl;
 		}
 		/* ===== */
@@ -81,8 +80,7 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 		$sql_cond = empty($extra) ? "" : " WHERE $extra";
 
 		/* === Hook === */
-		foreach (array_merge(cot_getextplugins('pagelist.query')) as $pl)
-		{
+		foreach (cot_getextplugins('pagelist.query') as $pl) {
 			include $pl;
 		}
 		/* ===== */
@@ -109,7 +107,11 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 				'PAGE_ROW_TITLE'		=> $row['structure_title'],
 				'PAGE_ROW_DESC'			=> $row['structure_desc'],
 				'PAGE_ROW_ICON'			=> $row['structure_icon'],
-				'PAGE_ROW_COUNT'		=> $row['structure_count']
+				'PAGE_ROW_COUNT'		=> $row['structure_count'],
+				// Geerate URL
+				'PAGE_ROW_URL'		=> sedby_catlist_urlgen($row['structure_area'], $row['structure_code'], $row['structure_path']),
+				// Some extra tags
+				'PAGE_ROW_HAS_DOT'	=> (strpos($row['structure_path'], '.')) ? true : false,
 			));
 			// Build extrafields
 			if (isset(Cot::$extrafields[Cot::$db->structure])) {
@@ -186,8 +188,7 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 		($jj==1) && $t->parse("MAIN.NONE");
 
 		/* === Hook === */
-		foreach (cot_getextplugins('catlist.tags') as $pl)
-		{
+		foreach (cot_getextplugins('catlist.tags') as $pl) {
 			include $pl;
 		}
 		/* ===== */
@@ -195,7 +196,7 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 		$t->parse();
 		$output = $t->text();
 
-		if (Cot::$cache && !empty($cache_name) && !empty($cache_ttl) && ($cache_ttl > 0)) {
+		if ($enableCache && ($jj > 1)) {
 			Cot::$cache->db->store($cache_name, $output, SEDBY_CATLIST_REALM, $cache_ttl);
 		}
 	}
@@ -208,23 +209,41 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 */
 function sedby_catcount($condition = '', $lang = '', $cache_name = '', $cache_ttl = '') {
 
-	$cache_name = (!empty($cache_name)) ? str_replace(' ', '_', $cache_name) : '';
+	$enableCache = false;
 
-	if (Cot::$cache && !empty($cache_name) && Cot::$cache->db->exists($cache_name, SEDBY_CATLIST_REALM)) {
+	// Condition shortcut
+	if (Cot::$cache && !empty($cache_name) && ((int)$cache_ttl > 0) && (Cot::$usr['id'] == 0)) {
+		$enableCache = true;
+		$cache_name = str_replace(' ', '_', $cache_name);
+	}
+
+	if ($enableCache && Cot::$cache->db->exists($cache_name, SEDBY_CATLIST_REALM)) {
 		$output = Cot::$cache->db->get($cache_name, SEDBY_CATLIST_REALM);
 	} else {
 		global $Ls;
 		$db_structure = Cot::$db->structure;
 
 		$sql_cond	= empty($condition) ? "" : "WHERE $condition";
-		$query = "SELECT COUNT(*) FROM $db_structure $sql_cond";
-		$output = Cot::$db->query($query)->fetchColumn();
+		$query = Cot::$db->query("SELECT COUNT(*) FROM $db_structure $sql_cond")->fetchColumn();
 
-		$output = (empty($lang)) ? $output : cot_declension($output, $Ls[$lang]);
+		$output = (empty($lang)) ? $query : cot_declension($query, $Ls[$lang]);
 
-		if (Cot::$cache && !empty($cache_name) && !empty($cache_ttl) && ($cache_ttl > 0)) {
+		if ($enableCache) {
 			Cot::$cache->db->store($cache_name, $output, SEDBY_CATLIST_REALM, $cache_ttl);
 		}
 	}
 	return ($output);
+}
+
+function sedby_catlist_urlgen($area, $code, $path) {
+	if ($area == 'forums') {
+		if (strpos($path, '.')) {
+			$url = cot_url('forums', 'm=topics&s=' . $code);
+		} else {
+			$url = cot_url('forums', 'c=' . $code);
+		}
+	} else {
+		$url = cot_url('page', 'c=' . $code);
+	}
+	return $url;
 }

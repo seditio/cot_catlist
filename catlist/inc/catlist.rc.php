@@ -1,12 +1,12 @@
-<?php
+<?
 /* ====================
 [BEGIN_COT_EXT]
-Hooks=page.list.main
+Hooks=rc
 [END_COT_EXT]
 ==================== */
 
 /**
-* Catlist Plugin / Page List / Main
+* Catlist Plugin / Resources (misc)
 *
 * @package catlist
 * @author Dmitri Beliavski
@@ -14,4 +14,3 @@ Hooks=page.list.main
 */
 
 defined('COT_CODE') or die('Wrong URL');
-require_once cot_incfile('catlist', 'plug');
