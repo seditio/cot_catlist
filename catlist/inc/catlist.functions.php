@@ -12,7 +12,7 @@ defined('COT_CODE') or die('Wrong URL');
 // define globals
 define('SEDBY_CATLIST_REALM', '[SEDBY] Catlist');
 
-require_once cot_incfile('page', 'module');
+require_once cot_incfile('pagelist', 'plug', 'functions.extra');
 
 /**
 * Generates CatList widget
@@ -38,6 +38,14 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 	if ($enableCache && Cot::$cache->db->exists($cache_name, SEDBY_CATLIST_REALM))
 		$output = Cot::$cache->db->get($cache_name, SEDBY_CATLIST_REALM);
 	else {
+
+		// Begin: Work on cats view permissions
+		$black_cats = sedby_black_cats();
+		if (!empty($black_cats)) {
+			$black_cats = "structure_code NOT IN ($black_cats)";
+			$extra = empty($extra) ? $black_cats : $extra . " AND " . $black_cats;
+		}
+		// End: Work on cats view permissions
 
 		/* === Hook === */
 		foreach (cot_getextplugins('catlist.first') as $pl) {
