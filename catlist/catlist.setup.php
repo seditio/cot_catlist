@@ -2,7 +2,7 @@
 /* ====================
 [BEGIN_COT_EXT]
 Code=catlist
-Name=CatList Widget
+Name=[SEDBY] CatList
 Category=navigation-structure
 Description=Generates custom category lists available via {PHP|cot_catlist} callback
 Version=2.00b
@@ -14,6 +14,10 @@ Auth_guests=R
 Lock_guests=W12345A
 Auth_members=R
 Lock_members=W12345A
+Requires_modules=
+Requires_plugins=cotlib
+Recommends_modules=
+Recommends_plugins=
 [END_COT_EXT]
 [BEGIN_COT_EXT_CONFIG]
 
