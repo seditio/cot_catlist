@@ -14,7 +14,7 @@
 				{PAGE_ROW_AREA}
 			</td>
 			<td class="text-end">
-				{PAGE_ROW_COUNT|cot_declension($this, 'Records')}
+				<!-- IF {PAGE_ROW_COUNT} -->{PAGE_ROW_COUNT|cot_declension($this, 'Entries')}<!-- ENDIF -->
 			</td>
 		</tr>
 <!-- END: PAGE_ROW -->

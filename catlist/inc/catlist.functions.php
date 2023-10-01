@@ -12,7 +12,7 @@ defined('COT_CODE') or die('Wrong URL');
 // define globals
 define('SEDBY_CATLIST_REALM', '[SEDBY] Catlist');
 
-require_once cot_incfile('pagelist', 'plug', 'functions.extra');
+require_once cot_incfile('cotlib', 'plug');
 
 /**
 * Generates CatList widget
