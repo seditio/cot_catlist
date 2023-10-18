@@ -129,8 +129,8 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 					$cat = &$structure[$row['structure_area']][$row['structure_code']];
 					$t->assign(array(
 						'PAGE_ROW_'.$uname.'_TITLE' => $exfld_title,
-						'PAGE_ROW_'.$uname => cot_build_extrafields_data('structure', $exfld, $cat[$exfld['field_name']]),
-						'PAGE_ROW_'.$uname.'_VALUE' => $cat[$exfld['field_name']],
+						'PAGE_ROW_'.$uname => cot_build_extrafields_data('structure', $exfld, Cot::$structure[$row['structure_area']][$row['structure_code']][$exfld['field_name']]),
+						'PAGE_ROW_'.$uname.'_VALUE' => Cot::$structure[$row['structure_area']][$row['structure_code']][$exfld['field_name']],
 					));
 				}
 			}
