@@ -5,9 +5,9 @@
 		<tr class="{PAGE_ROW_ODDEVEN}">
 			<td>
 				<!-- IF {PAGE_ROW_HAS_DOT} -->
-				<a href="{PAGE_ROW_CODE|cot_url('page', 'c=$this')}" class="ms-2">&#x2022;<span class="ms-2">{PAGE_ROW_TITLE}</span></a>
+				<a href="{PAGE_ROW_URL}" class="ms-2">&#x2022;<span class="ms-2">{PAGE_ROW_TITLE}</span></a>
 				<!-- ELSE -->
-				<a href="{PAGE_ROW_CODE|cot_url('page', 'c=$this')}" class="fw-bold">{PAGE_ROW_TITLE}</a>
+				<a href="{PAGE_ROW_URL}" class="fw-bold">{PAGE_ROW_TITLE}</a>
 				<!-- ENDIF -->
 			</td>
 			<td class="d-none d-sm-table-cell">

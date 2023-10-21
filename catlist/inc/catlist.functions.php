@@ -145,6 +145,8 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 			$jj++;
 		}
 
+		($jj == 1) && $t->parse("MAIN.NO_ROW");
+
 		// Render pagination if needed
 		if ($enablePagination) {
 			$totalitems = Cot::$db->query("SELECT s.* FROM $db_structure AS s $sql_cond")->rowCount();
@@ -192,8 +194,6 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
         'PAGE_TOP_RES' => $res,
       ));
     }
-
-		($jj==1) && $t->parse("MAIN.NONE");
 
 		/* === Hook === */
 		foreach (cot_getextplugins('catlist.tags') as $pl) {
