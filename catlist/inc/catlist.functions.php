@@ -30,7 +30,7 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 	$enableAjax = $enableCache = $enablePagination = false;
 
   // Condition shortcut
-  if (Cot::$cache && !empty($cache_name) && ((int)$cache_ttl > 0) && (Cot::$usr['id'] == 0)) {
+  if (Cot::$cache && !empty($cache_name) && ((int)$cache_ttl > 0)) {
     $enableCache = true;
     $cache_name = str_replace(' ', '_', $cache_name);
   }
