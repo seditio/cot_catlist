@@ -133,7 +133,18 @@ function sedby_catlist($tpl = 'catlist', $items = 0, $order = '', $extra = '', $
 						'PAGE_ROW_'.$uname.'_VALUE' => Cot::$structure[$row['structure_area']][$row['structure_code']][$exfld['field_name']],
 					));
 				}
-			}
+			};
+			
+			if (cot_plugin_active('i18n') AND cot_i18n_enabled($row['structure_code'])) {
+				global $i18n_locale, $i18n_notmain;
+				if ($i18n_notmain) {
+					$x_i18n = cot_i18n_get_cat($row['structure_code'], $i18n_locale);
+					$t->assign([
+						'PAGE_ROW_TITLE'	=> htmlspecialchars($x_i18n['title']),
+						'PAGE_ROW_DESC'		=> htmlspecialchars($x_i18n['desc']),
+					]);
+				}
+			};
 
 			/* === Hook - Part 2 === */
 			foreach ($extp as $pl) {
